@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RBAC Assistant</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #F5F5F5;
+}
+
+/* Top header (like Cuscal) */
+.topbar {
+    background-color: #D52B1E;
+    color: white;
+    padding: 16px;
+    font-size: 24px;
+    text-align: center;
+}
+
+/* Container */
+.container {
+    padding: 30px;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 15px;
+    background-color: #EEEEEE;
+    cursor: pointer;
+}
+
+.tab.active {
+    background-color: #D52B1E;
+    color: white;
+}
+
+/* Input */
+.query-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#query {
+    flex: 1;
+    padding: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #D52B1E;
+    color: white;
+    border: none;
+}
+
+/* Output card */
+.output-box {
+    padding: 20px;
+    background-color: white;
+    border-left: 6px solid #D52B1E;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    white-space: pre-wrap;
+}
+
+.category {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+</style>
+
+<script>
+async function sendQuery() {
+    let query = document.getElementById("query").value;
+    let output = document.getElementById("output");
+
+    output.innerText = "Processing...";
+
+    let response = await fetch("http://localhost:5050/query?q=" + encodeURIComponent(query));
+    let text = await response.text();
+
+    let category = "";
+
+    if (text.includes("Possible Causes")) {
+        category = "Troubleshooting";
+    } else if (text.includes("No match")) {
+        category = "No Match";
+    } else {
+        category = "Access / Information";
+    }
+
+    output.innerHTML = `
+        <div class="category">${category}</div>
+        <div>${text}</div>
+    `;
+}
+</script>
+</head>
+
+<body>
+
+<div class="topbar">
+    RBAC Assistant – Payments Hub
+</div>
+
+<div class="container">
+
+<div class="tabs">
+    <div class="tab active">Access</div>
+    <div class="tab">Troubleshooting</div>
+    <div class="tab">Validation</div>
+</div>
+
+<form onsubmit="event.preventDefault(); sendQuery();">
+    <div class="query-row">
+        <input type="text" id="query" placeholder="Ask about RBAC roles, access, disputes...">
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+<div id="output" class="output-box"></div>
+
+</div>
+
+</body>
+</html>
